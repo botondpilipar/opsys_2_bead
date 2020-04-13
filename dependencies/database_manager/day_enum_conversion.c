@@ -1,5 +1,5 @@
 #include "day_enum_conversion.h"
-#include "../etc/pch.h"
+#include <pch.h>
 
 WorkDay to_workday(const char* from)
 {

@@ -1,4 +1,4 @@
-#include "../etc/pch.h"
+#include <pch.h>
 #include "worker_entry.h"
 
 WorkerEntry create_entry(const char* name, const char* address, WorkDay* days_working, int number_of_days)

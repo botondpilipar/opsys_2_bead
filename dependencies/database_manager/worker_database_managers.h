@@ -2,7 +2,7 @@
 #define WORKER_DATABASE_MANAGERS_H
 
 #include "./database.h"
-#include "../etc/pch.h"
+#include <pch.h>
 #include "./day_enum_conversion.h"
 
 // Creation and deletion

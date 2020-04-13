@@ -1,10 +1,10 @@
 #ifndef WORKER_ENTRY_H
 #define WORKER_ENTRY_H
 
-#include "database_macros.h"
+#include <pch.h>
 
-#include "./working_days.h"
-#include "../etc/pch.h"
+#include "database_macros.h"
+#include "working_days.h"
 
 typedef struct WorkerEntry
 {
