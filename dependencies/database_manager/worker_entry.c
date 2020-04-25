@@ -1,51 +1,72 @@
 #include <pch.h>
 #include "worker_entry.h"
 
-WorkerEntry create_entry(const char* name, const char* address, WorkDay* days_working, int number_of_days)
-{
-    WorkerEntry entry =
-    {
-        .number_of_days = number_of_days
-    };
+// Pure implementational functions
 
-    strcpy(entry.name, name);
-    strcpy(entry.address, address);
-
-    for(int i = 0; i<number_of_days; ++i)
-        entry.days_working[i] = days_working[i];
-
-    return entry;
-}
-
-int day_comparator(const void* l, const void* r)
+unsigned int
+day_comparator(void* l, void* r)
 {
     return *(WorkDay*)l - *(WorkDay*)r;
 }
 
-bool is_valid_entry(WorkerEntry* entry)
+int
+memoryComparator(const void* left, const void* right)
 {
-    if(entry->number_of_days != 0 &&
-        entry->number_of_days <= WORK_DAYS &&
-        entry->days_working != NULL &&
-        entry->address != NULL &&
-        entry->name !=  NULL)
-    {
-        qsort(entry->days_working, entry->number_of_days, sizeof(WorkDay), day_comparator);
+    return memcmp(left, right, sizeof (left));
+}
 
-        bool all_unique = true;
-        for(int i = 0; i<entry->number_of_days -1 && all_unique; ++i)
+bool
+hasOnlyUniqueElements(int* elements, size_t size)
+{
+    qsort(elements, size, sizeof (int), &memoryComparator);
+
+    bool all_unique = true;
+    for(size_t i = 0; i < size - 1 && all_unique; ++i)
+    {
+        if(elements[i] == elements[i+1])
         {
-            if(entry->days_working[i] == entry->days_working[i+1])
-            {
-                all_unique = false;
-            }
+            all_unique = false;
         }
-        if(all_unique)
-            return true;
-        else
-            return false;
-        
+    }
+    if(all_unique)
+        return true;
+    else
+        return false;
+}
+
+// Interface functions
+WorkerEntry
+createEntry(const char* name,
+             const char* address,
+             WorkDay* daysWorking,
+             size_t numberOfDays,
+             bool isRegistered)
+{
+    WorkerEntry entry =
+    {
+        .numberOfDays = numberOfDays,
+        .isRegistered = isRegistered
+    };
+
+    strcpy(entry.name, name);
+    strcpy(entry.address, address);
+    memcpy(entry.daysWorking, daysWorking, numberOfDays*sizeof (WorkDay));
+
+    return entry;
+}
+
+bool isValidEntry(WorkerEntry* entry)
+{
+    if(entry->isRegistered)
+        return true;
+    else if(entry->numberOfDays > 0 &&
+            entry->numberOfDays <= WORK_DAYS)
+    {
+        return hasOnlyUniqueElements(entry->daysWorking,
+                                     entry->numberOfDays);
     }
     else
         return false;    
 }
+
+

@@ -5,3 +5,5 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
+#include <memory.h>
+#include <semaphore.h>

@@ -1,4 +1,4 @@
-# Operating Systems 3rd assignment
+# Operating Systems 2nd assignment
 
 ## The task
 
@@ -53,15 +53,14 @@ Ha a napi jelentkezettek száma kisebb mint a szükséges keret, akkor a munkás
 # Tasks
 
 1. [ ] Extend WorkerDatabase
-   1. [ ] `UnregisteredWorkerEntry` struct
-   2. [ ] two storage options for database
-   3. [ ] Abstract database methods
+   1. [X] `UnregisteredWorkerEntry` struct
+   2. [X] Database to store both worker types
+   3. [ ] Refactor and expand methods to unregistered workers
       1. [ ] Read entries
       2. [ ] Add entries
       3. [ ] Modify entries
       4. [ ] Delete entries
    4. [ ] Rename existing methods, fields
-   5. [ ] Add extra fileds to `WorkerDatabase` struct
    6. [ ] Registered and unregistered entry infterface
    7. [ ] Registered and unregistered entry implementation
    8. [ ] Previous tests pass?

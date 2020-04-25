@@ -4,14 +4,28 @@ project(OperatingSystemsAssignment2 C CXX)
 
 set(PCH dependencies/pch.h)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
 add_subdirectory(test)
 add_subdirectory(processes)
 add_subdirectory(main)
-add_subdirectory(dependencies/database_manager)
+add_subdirectory(dependencies)
 
-set(C_TARGETS Processes Main DatabaseManager)
+set(PROJECT_TARGETS 
+    Processes 
+    Main 
+    DatabaseManager
+    DatabaseManagerTestExec # C++ google test target
+    ConsoleIO
+    InputControlTestExec)
 set(APPLIED_COMPILE_OPTIONS)
+set(PROJECT_INCLUDE_DIRECTORIES 
+    dependencies
+    dependencies/console_interface
+    dependencies/database_manager
+    processes
+    processes/datasets)
 
 set(DEBUG_COMPILE_OPTIONS
     PUBLIC
@@ -46,14 +60,14 @@ else()
 endif()
 
 
-foreach(TARGET ${C_TARGETS})
+foreach(TARGET ${PROJECT_TARGETS})
     target_compile_options(
         ${TARGET}
         PUBLIC ${APPLIED_COMPILE_OPTIONS}
     )
     target_include_directories(
         ${TARGET}
-        PUBLIC dependencies
+        PUBLIC ${PROJECT_INCLUDE_DIRECTORIES}
     )
     target_precompile_headers(
         ${TARGET}

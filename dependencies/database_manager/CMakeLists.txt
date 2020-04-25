@@ -11,4 +11,5 @@ add_library(DatabaseManager
     worker_database_managers.h
     worker_database_managers.c
     UnregisteredWorkerEntry.h
+    UnregisteredWorkerEntry.c
 )

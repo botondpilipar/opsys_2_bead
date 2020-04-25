@@ -6,15 +6,43 @@
 #include "database_macros.h"
 #include "working_days.h"
 
+
 typedef struct WorkerEntry
 {
     char name[NAME_MAX_LENGTH];
     char address[ADDRESS_MAX_LENGTH];
-    WorkDay days_working[WORK_DAYS];
-    int number_of_days;
+    WorkDay daysWorking[WORK_DAYS];
+    size_t numberOfDays;
+    bool isRegistered;
 } WorkerEntry;
 
-WorkerEntry create_entry(const char* name, const char* address, WorkDay* days_working, int number_of_days);
+/**
+ * @brief Creates a WorkerEntry with every parameter filled
+ * @param name  Worker name
+ * @param address  Worker address
+ * @param daysWorking  Array of WorkDay enumeration containing the days
+ * the worker is willing to work
+ * @param numberOfDays  Total number of days, length of daysWorking array
+ * @param isRegistered  It is possible to add a worker who is not registered
+ * to any particular day, thus daysWorking and numberOfDays can be invalid
+ * @details Every sensitive data is copied
+ * @return Created WorkerEntry
+ */
+WorkerEntry
+createEntry(const char* name,
+             const char* address,
+             WorkDay* daysWorking,
+             size_t numberOfDays,
+             bool isRegistered);
 
-bool is_valid_entry(WorkerEntry* entry);
+/**
+ * @brief Determines whether parameter is valid logically
+ * @param entry
+ * @return
+ */
+bool
+isValidEntry(WorkerEntry* entry);
+
+
+
 #endif
