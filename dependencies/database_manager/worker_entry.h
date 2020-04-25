@@ -37,8 +37,8 @@ createEntry(const char* name,
 
 /**
  * @brief Determines whether parameter is valid logically
- * @param entry
- * @return
+ * @param entry WorkerEntry struct
+ * @return Returns true if entry is logically valid, false otherwise
  */
 bool
 isValidEntry(WorkerEntry* entry);

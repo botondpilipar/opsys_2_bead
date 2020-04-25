@@ -1,4 +1,4 @@
-#include "database_manager_test.h"
+#include "database_manager_test.hh"
 extern "C"
 {
     #include "../console_interface/input_control.h"

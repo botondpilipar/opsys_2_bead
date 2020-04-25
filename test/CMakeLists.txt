@@ -4,13 +4,15 @@ enable_language(CXX)
 set(CXX_STANDARD 11)
 set(CXX_STANDARD_REQUIRED ON)
 
+add_subdirectory(googletest)
+
 add_executable(
     DatabaseManagerTestExec
-    database_manager_test.h
-    database_manager_test.cpp
+    database_manager_test.hh
+    database_manager_test.cc
 )
 
 add_executable(
     InputControlTestExec
-    input_control_test.cpp
+    input_control_test.cc
 )

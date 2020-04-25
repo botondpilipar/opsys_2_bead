@@ -55,7 +55,7 @@ bool handle_address(char* dest)
     }
 }
 
-bool handle_days_working(WorkDay* dest, int* number_of_days)
+bool handle_daysWorking(WorkDay* dest, int* number_of_days)
 {
     char buffer [1024];
     printf("Vállalt napok: >> ");

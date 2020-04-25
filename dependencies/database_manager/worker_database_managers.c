@@ -30,10 +30,11 @@ createDb(const char* entryLocation)
     {
         .entryMemorySize = sizeof(WorkerEntry)
     };
-    setup.registeredEntryCapacity = INIT_DATABASE_LENGTH;
+    setup.entryCapacity = INIT_DATABASE_LENGTH;
     setup.diskStorage = fopen(entryLocation, "rb+");
-    setup.registeredEntries = (WorkerEntry*)calloc(INIT_DATABASE_LENGTH, setup.entryMemorySize);
-    setup.registeredEntryNumber = 0;
+    setup.entries =
+            (WorkerEntry*)calloc(INIT_DATABASE_LENGTH, setup.entryMemorySize);
+    setup.entryNumber = 0;
 
     return setup;
 }
@@ -51,8 +52,8 @@ void cleanupDb(WorkerDatabase* database)
 {
     if(database != NULL)
     {
-        if(database->registeredEntries != NULL)
-            free(database->registeredEntries);
+        if(database->entries != NULL)
+            free(database->entries);
         if(database->diskStorage != NULL)
             fclose(database->diskStorage);
         return;
@@ -107,29 +108,29 @@ int populateEntries(WorkerDatabase* db)
     size_t successfully_read = 0;
 
     while(successfully_read = 
-        fread(db->registeredEntries, db->entryMemorySize,
-        db->registeredEntryCapacity, db->diskStorage))
+        fread(db->entries, db->entryMemorySize,
+        db->entryCapacity, db->diskStorage))
     {
-        db->registeredEntryNumber += successfully_read;
-        if(db->registeredEntryNumber == db->registeredEntryCapacity)
+        db->entryNumber += successfully_read;
+        if(db->entryNumber == db->entryCapacity)
         {
             expandDatabase(db);
         }
     }
 
-    successfully_read = db->registeredEntryNumber;
+    successfully_read = db->entryNumber;
 
     for(int i = 0; i<successfully_read; ++i)
     {
-        if(isValidEntry(&db->registeredEntries[i]))
+        if(isValidEntry(&db->entries[i]))
         {
-            for(int j = 0; j<db->registeredEntries[i].numberOfDays; ++j)
+            for(int j = 0; j<db->entries[i].numberOfDays; ++j)
             {
-                --db->jobs_avaliable[db->registeredEntries[i].daysWorking[j]];
+                --db->jobs_avaliable[db->entries[i].daysWorking[j]];
             }
         }
         else
-            --db->registeredEntryNumber;
+            --db->entryNumber;
     }
     return EXIT_SUCCESS;
 }
@@ -138,14 +139,14 @@ int populateEntries(WorkerDatabase* db)
 
 void copyDatabase(WorkerDatabase* dest, WorkerDatabase* src)
 {
-    while(dest->registeredEntryCapacity < src->registeredEntryCapacity)
+    while(dest->entryCapacity < src->entryCapacity)
     {
         expandDatabase(dest);
     }
 
-    memcpy(dest->registeredEntries, src->registeredEntries, src->entryMemorySize*src->registeredEntryNumber);
+    memcpy(dest->entries, src->entries, src->entryMemorySize*src->entryNumber);
     dest->diskStorage = src->diskStorage;
-    dest->registeredEntryNumber = src->registeredEntryNumber;
+    dest->entryNumber = src->entryNumber;
     memcpy(dest->jobs_avaliable, src->jobs_avaliable, WORK_DAYS*sizeof(int));
 }
 
@@ -155,15 +156,15 @@ WorkerEntry lookup(const WorkerDatabase* database, const char*name, const char* 
 {
     bool found = false;
     WorkerEntry result_entry;
-    for(int i = 0; i<database->registeredEntryNumber && !found; ++i)
+    for(int i = 0; i<database->entryNumber && !found; ++i)
     {
-        int name_diff = strcmp(database->registeredEntries[i].name, name);
-        int address_diff = strcmp(database->registeredEntries[i].address, address);
+        int name_diff = strcmp(database->entries[i].name, name);
+        int address_diff = strcmp(database->entries[i].address, address);
         if(name_diff == 0
             && address_diff == 0)
         {
             found = true;
-            result_entry = database->registeredEntries[i];
+            result_entry = database->entries[i];
         }
     }
     *result = found;
@@ -171,21 +172,21 @@ WorkerEntry lookup(const WorkerDatabase* database, const char*name, const char* 
 }
 bool expandDatabase(WorkerDatabase* database)
 {
-    if(database->registeredEntryCapacity != database->registeredEntryNumber)
+    if(database->entryCapacity != database->entryNumber)
     {
         return false;
     }
     else
     {
-        WorkerEntry* old_entries = database->registeredEntries;
-        database->registeredEntryCapacity = 2*database->registeredEntryCapacity + 1;
-        database->registeredEntries = realloc(old_entries,    (database->registeredEntryCapacity)*database->entryMemorySize);
+        WorkerEntry* old_entries = database->entries;
+        database->entryCapacity = 2*database->entryCapacity + 1;
+        database->entries = realloc(old_entries,    (database->entryCapacity)*database->entryMemorySize);
         return true;
     }
 }
 bool addEntry(WorkerDatabase* database, WorkerEntry* entry)
 {
-    if(database->registeredEntryNumber == database->registeredEntryCapacity)
+    if(database->entryNumber == database->entryCapacity)
         expandDatabase(database);
     if(!isValidEntry(entry))
         return false;
@@ -207,12 +208,12 @@ bool addEntry(WorkerDatabase* database, WorkerEntry* entry)
         }
         WorkerEntry new_entry;
         memcpy(&new_entry, entry, database->entryMemorySize);
-        database->registeredEntries[database->registeredEntryNumber] = new_entry;
+        database->entries[database->entryNumber] = new_entry;
 
-        fseek(database->diskStorage, database->registeredEntryNumber*database->entryMemorySize, SEEK_SET);
+        fseek(database->diskStorage, database->entryNumber*database->entryMemorySize, SEEK_SET);
         int wrote = fwrite(&new_entry, database->entryMemorySize, 1, database->diskStorage);
 
-        ++database->registeredEntryNumber;
+        ++database->entryNumber;
 
         return wrote;
     }
@@ -225,10 +226,10 @@ int indexLookup(const WorkerDatabase* database, const char* name, const char* ad
 {
     bool found = false;
     int result_index = 0;
-    for(int i = 0; i<database->registeredEntryNumber && !found; ++i)
+    for(int i = 0; i<database->entryNumber && !found; ++i)
     {
-        int name_diff = strcmp(database->registeredEntries[i].name, name);
-        int address_diff = strcmp(database->registeredEntries[i].address, address);
+        int name_diff = strcmp(database->entries[i].name, name);
+        int address_diff = strcmp(database->entries[i].address, address);
         if(name_diff == 0
             && address_diff == 0)
         {
@@ -242,32 +243,32 @@ int indexLookup(const WorkerDatabase* database, const char* name, const char* ad
 
 bool removeEntry(WorkerDatabase* database, int collapse_position)
 {
-    if(collapse_position >= database->registeredEntryNumber || collapse_position < 0)
+    if(collapse_position >= database->entryNumber || collapse_position < 0)
         return false;
 
-    logout_worker(database, &database->registeredEntries[collapse_position]);
+    logout_worker(database, &database->entries[collapse_position]);
 
-    WorkerEntry* last = &database->registeredEntries[database->registeredEntryNumber - 1];
-    size_t last_byte_position = (database->registeredEntryNumber - 1)*database->entryMemorySize;
+    WorkerEntry* last = &database->entries[database->entryNumber - 1];
+    size_t last_byte_position = (database->entryNumber - 1)*database->entryMemorySize;
 
-    if(collapse_position != database->registeredEntryNumber - 1)
+    if(collapse_position != database->entryNumber - 1)
     {
         fseek(database->diskStorage, database->entryMemorySize*collapse_position, SEEK_SET);
         fwrite(last, database->entryMemorySize, 1, database->diskStorage);
-        database->registeredEntries[collapse_position] = *last;
+        database->entries[collapse_position] = *last;
     }
 
     last->numberOfDays = 0;
     fseek(database->diskStorage, last_byte_position, SEEK_SET);
     fwrite(last, database->entryMemorySize, 1, database->diskStorage);
-    database->registeredEntryNumber--;
+    database->entryNumber--;
 
     return true;
 }
 
 bool modifyEntry(WorkerDatabase* database, int modify_at, WorkerEntry* old_entry, WorkerEntry* new_entry)
 {
-    if(modify_at < 0 || modify_at >= database->registeredEntryNumber)
+    if(modify_at < 0 || modify_at >= database->entryNumber)
         return false;
 
     logout_worker(database, old_entry);
@@ -277,16 +278,7 @@ bool modifyEntry(WorkerDatabase* database, int modify_at, WorkerEntry* old_entry
     int wrote = fwrite(new_entry, database->entryMemorySize, 1, database->diskStorage);
     if(wrote != 1)
         return false;
-    database->registeredEntries[modify_at] = *new_entry;
+    database->entries[modify_at] = *new_entry;
 
     return true;
-}
-
-char* logDatabase(WorkerDatabase* database)
-{
-    printf("Elérhető munkák: ");
-    for(int i = 0; i < 7; ++i)
-    {
-        const char* day = from_workday(database->jobs_avaliable[i]);
-    }
 }

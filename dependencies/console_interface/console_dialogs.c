@@ -23,18 +23,6 @@ void print_avaliable_jobs(WorkerDatabase* db)
     }
 }
 
-// void printf_workers(WorkerDatabase* db)
-// {
-//     for(int i = 0; i<db->entry_number; ++i)
-//     {
-//         puts(db->entries[i].name);
-//         puts(db->entries[i].address);
-//         for(int j = 0; j<db->entries[i].days_working; ++j)
-//         {
-//             puts()
-//         }
-//     }
-// }
 void main_dialog(WorkerDatabase* db)
 {
     char input_buffer[1024];
@@ -64,7 +52,7 @@ void main_dialog(WorkerDatabase* db)
                 WorkerEntry entry = new_entry_dialog(db, &new_entry_success);
                 if(new_entry_success)
                 {
-                    bool added = add_entry(db, &entry);
+                    bool added = addEntry(db, &entry);
                     if(added)
                         printf("Sikeres művelet!\n");
                     else
@@ -75,12 +63,12 @@ void main_dialog(WorkerDatabase* db)
                 break;
             case 2:
             {   
-                int remove_at = remove_entry_dialog(db);
+                int remove_at = removeEntry_dialog(db);
                 if(remove_at < 0)
                     printf("Sikertelen művelet!\n");
                 else
                 {
-                    bool removed = remove_entry(db, remove_at);
+                    bool removed = removeEntry(db, remove_at);
                     if(removed)
                         printf("Sikeres eltávolítás az adatbázisból\n");
                     else
@@ -94,12 +82,12 @@ void main_dialog(WorkerDatabase* db)
                 char name [NAME_MAX_LENGTH];
                 char address [ADDRESS_MAX_LENGTH];
                 WorkDay days [WORK_DAYS];
-                WorkerEntry start_entry = create_entry(name, address, days, 0);
+                WorkerEntry start_entry = createEntry(name, address, days, 0, true);
                 int modify_at = modification_entry_dialog(db, &start_entry);
                 
                 if(modify_at >= 0)
                 {
-                    if(modify_entry(db, modify_at, &db->entries[modify_at], &start_entry))
+                    if(modifyEntry(db, modify_at, &db->entries[modify_at], &start_entry))
                         printf("Sikeres művelet\n");
                     else
                         printf("Sikertelen művelet\n");
@@ -126,28 +114,28 @@ WorkerEntry new_entry_dialog(WorkerDatabase* db, bool* successfull)
 {
     char name [NAME_MAX_LENGTH];
     char address [ADDRESS_MAX_LENGTH];
-    WorkDay days_working[WORK_DAYS];
-    int number_of_days = 0;
+    WorkDay daysWorking[WORK_DAYS];
+    int numberOfDays = 0;
 
     bool name_success = handle_name(name);
     bool address_success = handle_address(address);
-    bool days_working_success = handle_days_working(days_working, &number_of_days);
+    bool daysWorking_success = handle_daysWorking(daysWorking, &numberOfDays);
 
-    *successfull = name_success && address_success && days_working_success;
+    *successfull = name_success && address_success && daysWorking_success;
     if(*successfull)
     {
         bool already_in_db = false;
-        index_lookup(db, name, address, &already_in_db);
+        indexLookup(db, name, address, &already_in_db);
         if(already_in_db)
             printf("A bejegyzés már az adatbázisban van.\n");
         else
-            return create_entry(name, address, days_working, number_of_days);
+            return createEntry(name, address, daysWorking, numberOfDays, true);
     }
 
-    return create_entry("", "", NULL, 0);
+    return createEntry("", "", NULL, 0, true);
 }
 
-int remove_entry_dialog(WorkerDatabase* db)
+int removeEntry_dialog(WorkerDatabase* db)
 {
     char name [NAME_MAX_LENGTH];
     char address [ADDRESS_MAX_LENGTH];
@@ -158,7 +146,7 @@ int remove_entry_dialog(WorkerDatabase* db)
 
     if(name_success && address_success)
     {
-        int result =  index_lookup(db, name, address, &entry_found);
+        int result =  indexLookup(db, name, address, &entry_found);
         if(entry_found)
             return result;
         else
@@ -174,8 +162,8 @@ int modification_entry_dialog(WorkerDatabase* db, WorkerEntry* target)
     char old_address [ADDRESS_MAX_LENGTH];
     char new_name [NAME_MAX_LENGTH];
     char new_address [ADDRESS_MAX_LENGTH];
-    WorkDay new_days_working [WORK_DAYS];
-    int new_number_of_days = 0;
+    WorkDay new_daysWorking [WORK_DAYS];
+    int new_numberOfDays = 0;
 
     printf("Kérem adja meg meglévő adatait\n");
     bool name_success = handle_name(old_name);
@@ -184,7 +172,7 @@ int modification_entry_dialog(WorkerDatabase* db, WorkerEntry* target)
     if(name_success && address_success)
     {
         bool found = false;
-        int index = index_lookup(db, old_name, old_address, &found);
+        int index = indexLookup(db, old_name, old_address, &found);
 
         if(found)
         {
@@ -194,7 +182,7 @@ int modification_entry_dialog(WorkerDatabase* db, WorkerEntry* target)
             bool new_name_success = handle_name(new_name);
             bool new_address_success = handle_address(new_address);
             bool new_working_days_success = 
-                handle_days_working(new_days_working, &new_number_of_days);
+                handle_daysWorking(new_daysWorking, &new_numberOfDays);
             
             if(new_name_success 
                 && new_address_success 
@@ -202,8 +190,8 @@ int modification_entry_dialog(WorkerDatabase* db, WorkerEntry* target)
             {
                 strcpy(target->address, new_address);
                 strcpy(target->name, new_name);
-                target->number_of_days = new_number_of_days;
-                memcpy(target->days_working, new_days_working, WORK_DAYS*sizeof(WorkDay));
+                target->numberOfDays = new_numberOfDays;
+                memcpy(target->daysWorking, new_daysWorking, WORK_DAYS*sizeof(WorkDay));
 
                 return index;
             }

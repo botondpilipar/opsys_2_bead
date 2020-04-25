@@ -7,3 +7,4 @@
 #include <signal.h>
 #include <memory.h>
 #include <semaphore.h>
+#include <regex.h>

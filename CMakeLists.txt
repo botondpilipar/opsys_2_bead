@@ -6,6 +6,7 @@ set(PCH dependencies/pch.h)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
+set(APPLIED_COMPILE_OPTIONS)
 
 add_subdirectory(test)
 add_subdirectory(processes)
@@ -19,13 +20,14 @@ set(PROJECT_TARGETS
     DatabaseManagerTestExec # C++ google test target
     ConsoleIO
     InputControlTestExec)
-set(APPLIED_COMPILE_OPTIONS)
+
 set(PROJECT_INCLUDE_DIRECTORIES 
     dependencies
     dependencies/console_interface
     dependencies/database_manager
     processes
-    processes/datasets)
+    processes/datasets
+    ${GTEST_INCLUDE_DIRS})
 
 set(DEBUG_COMPILE_OPTIONS
     PUBLIC
@@ -59,7 +61,6 @@ else()
     set(APPLIED_COMPILE_OPTIONS "")
 endif()
 
-
 foreach(TARGET ${PROJECT_TARGETS})
     target_compile_options(
         ${TARGET}
@@ -75,3 +76,36 @@ foreach(TARGET ${PROJECT_TARGETS})
     )
 endforeach(TARGET C_TARGETS)
 
+#Linking
+target_link_libraries(
+    Processes
+    DatabaseManager
+)
+
+target_link_libraries(
+    Main
+    DatabaseManager
+    ConsoleIO
+    Processes
+)
+
+target_link_libraries(
+    DatabaseManagerTestExec
+    DatabaseManager
+    ${GTEST_LIBRARIES}
+    gtest_main
+    pthread
+)
+
+target_link_libraries(
+    ConsoleIO
+    DatabaseManager
+)
+
+target_link_libraries(
+    InputControlTestExec
+    ConsoleIO
+    ${GTEST_LIBRARIES}
+    gtest_main
+    pthread
+)

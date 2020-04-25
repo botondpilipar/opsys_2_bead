@@ -1,7 +1,7 @@
 #include <pch.h>
 #include "worker_entry.h"
 
-// Pure implementational functions
+// Pure implementation functions
 
 unsigned int
 day_comparator(void* l, void* r)
@@ -57,7 +57,7 @@ createEntry(const char* name,
 
 bool isValidEntry(WorkerEntry* entry)
 {
-    if(entry->isRegistered)
+    if(!entry->isRegistered)
         return true;
     else if(entry->numberOfDays > 0 &&
             entry->numberOfDays <= WORK_DAYS)

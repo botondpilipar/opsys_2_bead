@@ -4,4 +4,4 @@ bool handle_name(char* dest);
 
 bool handle_address(char* dest);
 
-bool handle_days_working(WorkDay* dest, int* number_of_days);
+bool handle_daysWorking(WorkDay* dest, int* number_of_days);
