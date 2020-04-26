@@ -1,7 +1,7 @@
 #include "console_dialogs.h"
 #include "input_handlers.h"
-#include "../database_manager/worker_database_managers.h"
-#include "../database_manager/worker_entry.h"
+#include <worker_database_managers.h>
+#include <worker_entry.h>
 
 void display_main_menu(void)
 {
@@ -25,28 +25,28 @@ void print_avaliable_jobs(WorkerDatabase* db)
 
 void main_dialog(WorkerDatabase* db)
 {
-    char input_buffer[1024];
+    char input_buffer[BUFFER_SIZE];
     int menu_option = 0;
 
     do
     {
         display_main_menu();
 
-        fgets(input_buffer, 1024, stdin);
+        fgets(input_buffer, BUFFER_SIZE, stdin);
         int success = sscanf(input_buffer, "%d", &menu_option);
         while(!success
              && strlen(input_buffer) > 0)
         {
             printf("Hibás bemenet, próbálja újra\n");
             display_main_menu();
-            fgets(input_buffer, 1024, stdin);
+            fgets(input_buffer, BUFFER_SIZE, stdin);
         }
 
         switch (menu_option)
         {
-            case 0:
+            case DEFAULT_DIALOG_OPTION:
                 break;
-            case 1:
+            case NEW_ENTRY_DIALOG_OPTION:
             {
                 bool new_entry_success = false;
                 WorkerEntry entry = new_entry_dialog(db, &new_entry_success);
@@ -61,7 +61,7 @@ void main_dialog(WorkerDatabase* db)
                 printf("Visszatérés a főmenübe\n");
             }
                 break;
-            case 2:
+            case REMOVE_ENTRY_DIALOG_OPTION:
             {   
                 int remove_at = removeEntry_dialog(db);
                 if(remove_at < 0)
@@ -77,7 +77,7 @@ void main_dialog(WorkerDatabase* db)
                 printf("Visszatérés a főmenübe\n");
             }
                 break;
-            case 3:
+            case MODIFY_ENTRY_DIALOG_OPTION:
             {
                 char name [NAME_MAX_LENGTH];
                 char address [ADDRESS_MAX_LENGTH];
@@ -97,16 +97,18 @@ void main_dialog(WorkerDatabase* db)
                 printf("Visszatérés a főmenübe\n");
             }
                 break;
-            case 4:
+            case AVAILABLE_JOBS_DIALOG_OPTION:
             {
                 print_avaliable_jobs(db);
             }
+                break;
+            case EXIT_DIALOG_OPTION:
                 break;
             default:
                 printf("Nem olvasható bemenet, kérem próbálja újra\n");
                 break;
         }
-    } while (menu_option != 0 && menu_option != 5);
+    } while (menu_option != DEFAULT_DIALOG_OPTION && menu_option != EXIT_DIALOG_OPTION);
 }
     
 
@@ -149,11 +151,8 @@ int removeEntry_dialog(WorkerDatabase* db)
         int result =  indexLookup(db, name, address, &entry_found);
         if(entry_found)
             return result;
-        else
-            return -1;
-    } else {
-        return -1;
     }
+    return -1;
 }
 
 int modification_entry_dialog(WorkerDatabase* db, WorkerEntry* target)

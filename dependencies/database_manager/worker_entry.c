@@ -30,8 +30,8 @@ hasOnlyUniqueElements(int* elements, size_t size)
     }
     if(all_unique)
         return true;
-    else
-        return false;
+
+    return false;
 }
 
 // Interface functions
@@ -59,14 +59,14 @@ bool isValidEntry(WorkerEntry* entry)
 {
     if(!entry->isRegistered)
         return true;
-    else if(entry->numberOfDays > 0 &&
+
+    if(entry->numberOfDays > 0 &&
             entry->numberOfDays <= WORK_DAYS)
     {
         return hasOnlyUniqueElements(entry->daysWorking,
                                      entry->numberOfDays);
     }
-    else
-        return false;    
+    return false;
 }
 
 

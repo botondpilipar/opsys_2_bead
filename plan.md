@@ -2,11 +2,24 @@
 
 ## The task
 
-A "Jó bor, jó egészség" szőlészetbe (szülő) is megérkezett a tavasz. A szőlészet gazdatisztje(gyerek) naponta reggel ellenőrzi, hogy az egyes "dűlők" milyen állapotban vannak. A napi ellenőrzéssel megállapítja, hogy melyik területen (Jenő telek, Lovas dűlő, Hosszú, Selyem telek, Malom telek és Szula),  milyen munka elvégzését (metszés, rügyfakasztó permetezés, tavaszi nyitás, horolás) kell elvégezni. Például: Lovas dűlő, metszés. Egy nap csak egy helyen folyik valamilyen munka. Az ellenőrzés  eredményét csővezetéken továbbítja a szőlészeti irodába. 
+A "Jó bor, jó egészség" szőlészetbe (szülő) is megérkezett a tavasz. 
+A szőlészet gazdatisztje(gyerek) naponta reggel ellenőrzi, hogy az egyes
+"dűlők" milyen állapotban vannak.A napi ellenőrzéssel megállapítja, hogy 
+melyik területen (Jenő telek, Lovas dűlő, Hosszú, Selyem telek, Malom telek és Szula),
+milyen munka elvégzését (metszés, rügyfakasztó permetezés, tavaszi nyitás, horolás) kell elvégezni.
+Például: Lovas dűlő, metszés. Egy nap csak egy helyen folyik valamilyen munka.
+Az ellenőrzés  eredményét csővezetéken továbbítja a szőlészeti irodába.
 
-A "Jó bor, jó egészség" szőlészet vezetése miután megkapta az aznapi munkafeladatot (pl: Malom telek, tavaszi nyitás), ezután elindítja a munkásjáratot(másik gyerek) a jelentkezett dolgozókért. A vezetés továbbítja a járat vezetőnek (szintén csővezetéken) az aznapra jelentkezettek névsorát, és azt, hogy aznap reggel, hova és milyen munkára kell vinni a csapatot. Ezeket az információkat a járat vezetője a képernyőre is kiírja.
+A "Jó bor, jó egészség" szőlészet vezetése miután megkapta az aznapi munkafeladatot
+(pl: Malom telek, tavaszi nyitás), ezután elindítja a munkásjáratot(másik gyerek) a jelentkezett dolgozókért.
+A vezetés továbbítja a járat vezetőnek (szintén csővezetéken) az aznapra jelentkezettek névsorát, és azt,
+hogy aznap reggel, hova és milyen munkára kell vinni a csapatot.
+Ezeket az információkat a járat vezetője a képernyőre is kiírja.
 
-Ha a napi jelentkezettek száma kisebb mint a szükséges keret, akkor a munkásjárat vezetője a "reggeli azonnali jelentkezők" közül kiválasztja(véletlenszerűen) a még hiányzó munkásokat. Miután kiszállította a napi csapatot a megadott helyszínre, egy jelzéssel tudatja a vezetéssel, hogy aznap hány munkást sikerült kiszállítani. A kapott eredményt a szőlészet vezetése képernyőre írja.
+Ha a napi jelentkezettek száma kisebb mint a szükséges keret, akkor a munkásjárat vezetője
+a "reggeli azonnali jelentkezők" közül kiválasztja(véletlenszerűen) a még hiányzó munkásokat.
+Miután kiszállította a napi csapatot a megadott helyszínre, egy jelzéssel tudatja a vezetéssel, hogy
+aznap hány munkást sikerült kiszállítani. A kapott eredményt a szőlészet vezetése képernyőre írja.
 
 
 ## Tools
@@ -52,19 +65,17 @@ Ha a napi jelentkezettek száma kisebb mint a szükséges keret, akkor a munkás
 
 # Tasks
 
-1. [ ] Extend WorkerDatabase
+1. [X] Extend WorkerDatabase
    1. [X] `UnregisteredWorkerEntry` struct
    2. [X] Database to store both worker types
-   3. [ ] Refactor and expand methods to unregistered workers
-      1. [ ] Read entries
-      2. [ ] Add entries
-      3. [ ] Modify entries
-      4. [ ] Delete entries
-   4. [ ] Rename existing methods, fields
-   6. [ ] Registered and unregistered entry infterface
-   7. [ ] Registered and unregistered entry implementation
-   8. [ ] Previous tests pass?
-   9.  [ ] Send registered/unregistered workers through parametered signals
+   3. [X] Refactor and expand methods to unregistered workers
+      1. [X] Read entries
+      2. [X] Add entries
+      3. [X] Modify entries
+      4. [X] Delete entries
+   4. [X] Rename existing methods, fields
+   5. [X] Registered and unregistered entry implementation
+   6. [X] Previous tests pass?
 2. [ ] Resource tree planning
    1. [ ] resource tasks per vineyards - *how to store?*
    2. [ ] What process will read and modify which files?

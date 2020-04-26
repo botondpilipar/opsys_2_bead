@@ -9,7 +9,6 @@ void logout_worker(WorkerDatabase* database, WorkerEntry* logout)
     {
         database->jobs_avaliable[logout->daysWorking[i]] += 1;
     }
-    return;
 }
 
 void login_worker(WorkerDatabase* database, WorkerEntry* login)
@@ -18,7 +17,6 @@ void login_worker(WorkerDatabase* database, WorkerEntry* login)
     {
         database->jobs_avaliable[login->daysWorking[i]] -= 1;
     }
-    return;
 }
 
 // Creation and deletion
@@ -56,10 +54,7 @@ void cleanupDb(WorkerDatabase* database)
             free(database->entries);
         if(database->diskStorage != NULL)
             fclose(database->diskStorage);
-        return;
     }
-    else
-        return;
 }
 
 int populateJobsRequired(const char* file, int* days)
@@ -120,11 +115,11 @@ int populateEntries(WorkerDatabase* db)
 
     successfully_read = db->entryNumber;
 
-    for(int i = 0; i<successfully_read; ++i)
+    for(size_t i = 0; i<successfully_read; ++i)
     {
         if(isValidEntry(&db->entries[i]))
         {
-            for(int j = 0; j<db->entries[i].numberOfDays; ++j)
+            for(size_t j = 0; j<db->entries[i].numberOfDays; ++j)
             {
                 --db->jobs_avaliable[db->entries[i].daysWorking[j]];
             }
@@ -156,7 +151,7 @@ WorkerEntry lookup(const WorkerDatabase* database, const char*name, const char* 
 {
     bool found = false;
     WorkerEntry result_entry;
-    for(int i = 0; i<database->entryNumber && !found; ++i)
+    for(size_t i = 0; i<database->entryNumber && !found; ++i)
     {
         int name_diff = strcmp(database->entries[i].name, name);
         int address_diff = strcmp(database->entries[i].address, address);
@@ -176,13 +171,11 @@ bool expandDatabase(WorkerDatabase* database)
     {
         return false;
     }
-    else
-    {
-        WorkerEntry* old_entries = database->entries;
-        database->entryCapacity = 2*database->entryCapacity + 1;
-        database->entries = realloc(old_entries,    (database->entryCapacity)*database->entryMemorySize);
-        return true;
-    }
+
+    WorkerEntry* old_entries = database->entries;
+    database->entryCapacity = 2*database->entryCapacity + 1;
+    database->entries = realloc(old_entries,    (database->entryCapacity)*database->entryMemorySize);
+    return true;
 }
 bool addEntry(WorkerDatabase* database, WorkerEntry* entry)
 {
@@ -192,7 +185,7 @@ bool addEntry(WorkerDatabase* database, WorkerEntry* entry)
         return false;
 
     bool no_full_days = true;
-    for(int i = 0; i<entry->numberOfDays; ++i)
+    for(size_t i = 0; i<entry->numberOfDays; ++i)
     {
         if(database->jobs_avaliable[entry->daysWorking[i]] == 0)
         {
@@ -202,7 +195,7 @@ bool addEntry(WorkerDatabase* database, WorkerEntry* entry)
 
     if(no_full_days)
     {
-        for(int i = 0; i<entry->numberOfDays; ++i)
+        for(size_t i = 0; i<entry->numberOfDays; ++i)
         {
             --database->jobs_avaliable[entry->daysWorking[i]];
         }
@@ -217,8 +210,8 @@ bool addEntry(WorkerDatabase* database, WorkerEntry* entry)
 
         return wrote;
     }
-    else
-        return false;
+
+    return false;
     
 }
 

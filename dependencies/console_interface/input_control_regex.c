@@ -1,5 +1,5 @@
 #include "input_control.h"
-#define REGEX_MAX_LENGTH 300
+
 
 int
 match(const char *string, char *pattern)
@@ -29,16 +29,12 @@ bool is_name(const char* source)
     
     if(result == 1)
         return true;
-    else
-        return false;
+
+    return false;
 }
 
 bool is_address(const char* source)
 {
-    // Address-patter: [Name] [ names(non-capital too) or Numbers any number of times] [Number]
-    // name_pattern = "[A-Z]([A-Za-z])*(\\.)?(\\s)?";
-    // numeric_pattern = "[1-9]([0-9])*(\\.)?(\\s)?";
-
     if(source == NULL || strlen(source) == 0)
         return false;
     char* address_pattern = 
@@ -50,7 +46,7 @@ bool is_address(const char* source)
 
 bool is_working_day(char* source)
 {
-    char days [7][MAX_DAY_STR_LENGTH+2] = 
+    char days [WEEK_LENGTH][MAX_DAY_STR_LENGTH+2] =
         {"^hétfő$", "^kedd$", "^szerda$", "^csütörtök$", "^péntek$", "^szombat$", "^vasárnap$"};
 
     bool any_matches = false;
@@ -63,7 +59,7 @@ bool is_working_day(char* source)
 
 bool to_working_days(char* source, WorkDay* destination, int* number_of_days)
 {
-    char tokenized [1024][MAX_DAY_STR_LENGTH];
+    char tokenized [BUFFER_SIZE][MAX_DAY_STR_LENGTH];
     char* delimiters = " \t";
     int token_iterator = 0;
     bool valid = true;
@@ -75,7 +71,7 @@ bool to_working_days(char* source, WorkDay* destination, int* number_of_days)
     else
         valid = false;        
 
-    while(tokenized[token_iterator] != NULL && token_iterator < 1024 && valid)
+    while(tokenized[token_iterator] != NULL && token_iterator < BUFFER_SIZE && valid)
     {
         ++token_iterator;
         token = strtok(NULL, delimiters);
