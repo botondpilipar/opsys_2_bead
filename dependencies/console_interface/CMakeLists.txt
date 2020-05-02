@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+﻿cmake_minimum_required(VERSION 3.17)
 
 add_library(ConsoleIO
     console_dialogs.h
@@ -8,4 +8,3 @@ add_library(ConsoleIO
     input_control.h
     input_control_regex.c
 )
-

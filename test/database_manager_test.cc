@@ -1,4 +1,64 @@
-#include "database_manager_test.hh"
+﻿#include "database_manager_test.hh"
+
+class WorkerEntryTest : public ::testing::Test
+{
+protected:
+//    virtual void SetUp();
+//    virtual void TearDown();
+
+    const char* entryName1 = "Peter";
+    const char* entryName2 = "Paul";
+    const char* entryAddress1 = "Work Street 2.";
+    const char* entryAddress2 = "Home Street 12.";
+    const WorkDay entryWorkDays1[WORK_DAYS] = {MON, TUE, WED, THU, FRI, SAT, SUN};
+    const WorkDay entryWorkDays2[WORK_DAYS] = {MON, WED, TUE, FRI, THU};
+
+    const WorkDay invalidDays1[WORK_DAYS] = {MON, MON, TUE, TUE, FRI, FRI, SAT};
+    const WorkDay invalidDays2[WORK_DAYS] = {};
+};
+
+TEST_F(WorkerEntryTest, EntryCreationAndValidation)
+{
+    WorkerEntry valid1 = createEntry(entryName1, entryAddress1, entryWorkDays1, 7, true);
+    WorkerEntry valid2 = createEntry(entryName1, entryAddress1, entryWorkDays2, 5, true);
+    WorkerEntry invalid1 = createEntry(entryName1, entryAddress1, invalidDays1, 7, true);
+    WorkerEntry invalid11 = createEntry(entryName1, entryAddress1, invalidDays1, 0, true);
+    WorkerEntry invalid2 = createEntry(entryName2, entryAddress2, invalidDays2, 0, true);
+
+    WorkerEntry unregisteredValid1 = createEntry(entryName1, entryAddress1, entryWorkDays1, 7, false);
+    WorkerEntry unregisteredValid2 = createEntry(entryName2, entryAddress2, nullptr, 0, false);
+
+    EXPECT_TRUE(isValidEntry(&valid1));
+    EXPECT_TRUE(isValidEntry(&valid2));
+    EXPECT_TRUE(isValidEntry(&unregisteredValid1));
+    EXPECT_TRUE(isValidEntry(&unregisteredValid2));
+    EXPECT_FALSE(isValidEntry(&invalid1));
+    EXPECT_FALSE(isValidEntry(&invalid11));
+    EXPECT_FALSE(isValidEntry(&invalid2));
+}
+
+TEST_F(WorkerEntryTest, EntryToWork)
+{
+    WorkerEntry valid1 = createEntry(entryName1, entryAddress1, entryWorkDays1, 7, true);
+    WorkerEntry valid2 = createEntry(entryName1, entryAddress1, entryWorkDays2, 5, true);
+    WorkerEntry unregisteredValid1 = createEntry(entryName1, entryAddress1, entryWorkDays1, 7, false);
+
+    size_t validDays1 = valid1.numberOfDays;
+    size_t validDays2 = valid2.numberOfDays;
+
+    EXPECT_TRUE(canWorkOnDay(&valid1, MON));
+    EXPECT_TRUE(canWorkOnDay(&valid1, FRI));
+    EXPECT_TRUE(canWorkOnDay(&unregisteredValid1, FRI));
+    EXPECT_FALSE(canWorkOnDay(&valid2, SUN));
+
+    sendToWork(&valid1, MON);
+    sendToWork(&valid2, FRI);
+
+    EXPECT_FALSE(canWorkOnDay(&valid1, MON));
+    EXPECT_FALSE(canWorkOnDay(&valid2, FRI));
+    EXPECT_NE(valid1.numberOfDays, validDays1);
+    EXPECT_NE(valid2.numberOfDays, validDays2);
+}
 
 TEST(Database, TestInitialize)
 {
@@ -8,26 +68,6 @@ TEST(Database, TestInitialize)
     fclose(empty_entry);
     
 }
-TEST(Entry, ValidEntry)
-{
-    WorkDay valid_days1 [WORK_DAYS] = {MON, TUE, WED, THU, FRI, SAT, SUN};
-    WorkDay valid_days2 [WORK_DAYS] = {MON, WED, TUE, FRI, THU};
-    WorkDay invalid_days1 [WORK_DAYS] = {MON, MON, MON, MON, MON, MON, MON};
-    WorkDay invalid_days2 [WORK_DAYS] = {TUE, WED, THU, TUE, FRI, FRI};
-
-    WorkerEntry valid1 = createEntry("Peter", "Street", valid_days1, 7, true);
-    WorkerEntry valid2 = createEntry("Peter", "Street", valid_days2, 5, true);
-    WorkerEntry invalid1 = createEntry("Peter", "Street", invalid_days1, 7, true);
-    WorkerEntry invalid11 = createEntry("Peter", "Street", invalid_days1, 0, true);
-    WorkerEntry invalid2 = createEntry("Peter", "Street", invalid_days2, 6, true);
-
-    EXPECT_TRUE(isValidEntry(&valid1));
-    EXPECT_TRUE(isValidEntry(&valid2));
-    EXPECT_FALSE(isValidEntry(&invalid1));
-    EXPECT_FALSE(isValidEntry(&invalid11));
-    EXPECT_FALSE(isValidEntry(&invalid2));
-}
-
 
 TEST(Database, CanOpenTextAndBinaryFile)
 {

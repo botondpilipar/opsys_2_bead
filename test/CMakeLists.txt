@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+﻿cmake_minimum_required(VERSION 3.17)
 
 enable_language(CXX)
 set(CXX_STANDARD 11)
@@ -13,6 +13,25 @@ add_executable(
 )
 
 add_executable(
+    DailyTaskManagerTestExec
+    DailyTaskManagerTest.cc
+)
+
+add_executable(
     InputControlTestExec
     input_control_test.cc
+)
+
+add_custom_command(
+    TARGET DatabaseManagerTestExec
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/resources
+    ${CMAKE_CURRENT_BINARY_DIR}/resources
+)
+
+add_custom_command(
+    TARGET DailyTaskManagerTestExec
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/resources
+    ${CMAKE_CURRENT_BINARY_DIR}/resources
 )

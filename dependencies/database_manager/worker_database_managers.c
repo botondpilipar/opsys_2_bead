@@ -1,4 +1,4 @@
-#include "worker_database_managers.h"
+﻿#include "worker_database_managers.h"
 #include <pch.h>
 
 // Utility
@@ -274,4 +274,46 @@ bool modifyEntry(WorkerDatabase* database, int modify_at, WorkerEntry* old_entry
     database->entries[modify_at] = *new_entry;
 
     return true;
+}
+
+bool
+requestWorkers(WorkerDatabase* database,
+               WorkerEntry* destination,
+               unsigned int maxNumber,
+               WorkDay day,
+               bool isRegistered)
+{
+    int destinationIndexer = 0;
+    if(isRegistered)
+    {
+        for(unsigned i = 0;
+            i < database->entryNumber
+                && destinationIndexer < maxNumber; ++i)
+        {
+            if(database->entries[i].isRegistered == isRegistered
+                    && canWorkOnDay(&database->entries[i], day))
+            {
+                WorkerEntry workEntry = database->entries[i];
+                sendToWork(&workEntry, day);
+                bool inDatabase = true;
+                int index = indexLookup(database,
+                                        workEntry.name,
+                                        workEntry.address,
+                                        &inDatabase);
+
+                if(workEntry.numberOfDays == 0)
+                    removeEntry(database, index);
+                else
+                    modifyEntry(database,
+                                index,
+                                &database->entries[i],
+                                &workEntry);
+
+                destination[destinationIndexer] = database->entries[i];
+                destinationIndexer += 1;
+            }
+        }
+    }
+
+    return destinationIndexer == maxNumber;
 }

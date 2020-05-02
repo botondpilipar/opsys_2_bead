@@ -1,4 +1,4 @@
-# Operating Systems 2nd assignment
+﻿# Operating Systems 2nd assignment
 
 ## The task
 
@@ -76,9 +76,9 @@ aznap hány munkást sikerült kiszállítani. A kapott eredményt a szőlészet
    4. [X] Rename existing methods, fields
    5. [X] Registered and unregistered entry implementation
    6. [X] Previous tests pass?
-2. [ ] Resource tree planning
-   1. [ ] resource tasks per vineyards - *how to store?*
-   2. [ ] What process will read and modify which files?
+2. [X] Resource tree planning
+   1. [X] resource tasks per vineyards - *how to store?*
+   2. [X] What process will read and modify which files?
 3. [ ] Extend console interface
    1. [ ] Main dialog for registered, unregistered entries
    2. [ ] Extra dialog `startWorkingDay` to handle interactions

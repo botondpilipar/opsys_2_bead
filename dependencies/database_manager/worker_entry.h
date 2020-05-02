@@ -1,4 +1,4 @@
-#ifndef WORKER_ENTRY_H
+﻿#ifndef WORKER_ENTRY_H
 #define WORKER_ENTRY_H
 
 #include <pch.h>
@@ -31,7 +31,7 @@ typedef struct WorkerEntry
 WorkerEntry
 createEntry(const char* name,
              const char* address,
-             WorkDay* daysWorking,
+             const WorkDay* daysWorking,
              size_t numberOfDays,
              bool isRegistered);
 
@@ -44,5 +44,28 @@ bool
 isValidEntry(WorkerEntry* entry);
 
 
+/**
+ * @brief Determines whether worker has the parameter day
+ * in their array of days
+ * @param entry
+ * @param day Working day from enum
+ * @return If worker is unregistered, the function returns ture
+ * If the worker is registered, the returns true if the day
+ * parameter is found among worker's days.
+ */
+bool
+canWorkOnDay(const WorkerEntry* entry,
+             WorkDay day);
+
+/**
+ * @brief Sends worker to work by removing the day from its
+ * array of registered days
+ * @param entry Worker the function sends to work
+ * If the worker is unregistered, it will simply change its state
+ * for later to be cleaned up by handler function.
+ * @param day The day which should be removed it present
+ */
+void
+sendToWork(WorkerEntry* entry, WorkDay day);
 
 #endif

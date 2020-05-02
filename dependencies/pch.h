@@ -1,5 +1,6 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdbool.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <sys/types.h>
@@ -8,3 +9,4 @@
 #include <memory.h>
 #include <semaphore.h>
 #include <regex.h>
+#include <time.h>

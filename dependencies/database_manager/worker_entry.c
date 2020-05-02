@@ -1,4 +1,4 @@
-#include <pch.h>
+﻿#include <pch.h>
 #include "worker_entry.h"
 
 // Pure implementation functions
@@ -34,11 +34,30 @@ hasOnlyUniqueElements(int* elements, size_t size)
     return false;
 }
 
+void
+rotateWorkDay(size_t firstAfterRotation,
+              size_t size,
+              WorkDay* days)
+{
+    // first half of the array until rotate position
+    WorkDay firstPart[firstAfterRotation];
+
+    for(size_t i = 0; i<firstAfterRotation; i++)
+    {
+        firstPart[i] = days[i];
+    }
+    for(size_t i = firstAfterRotation; i<size; ++i)
+    {
+        days[i - firstAfterRotation] = days[i];
+        days[i] = firstPart[i - firstAfterRotation];
+    }
+}
+
 // Interface functions
 WorkerEntry
 createEntry(const char* name,
              const char* address,
-             WorkDay* daysWorking,
+             const WorkDay* daysWorking,
              size_t numberOfDays,
              bool isRegistered)
 {
@@ -69,4 +88,48 @@ bool isValidEntry(WorkerEntry* entry)
     return false;
 }
 
+bool
+canWorkOnDay(const WorkerEntry* entry, WorkDay day)
+{
+    if(!entry->isRegistered)
+    {
+        return true;
+    }
 
+    bool isAvaliable = false;
+
+    for(size_t i = 0; i<entry->numberOfDays && !isAvaliable; ++i)
+    {
+        if(day == entry->daysWorking[i])
+        {
+            isAvaliable = true;
+        }
+    }
+
+    return isAvaliable;
+}
+
+void
+sendToWork(WorkerEntry* entry, WorkDay day)
+{
+    if(!entry->isRegistered)
+    {
+        entry->numberOfDays = 0;
+        return;
+    }
+
+    if(canWorkOnDay(entry, day))
+    {
+        size_t workDayPosition = 0;
+        for(size_t i = 0; i<entry->numberOfDays; ++i)
+        {
+            if(entry->daysWorking[i] == day)
+            {
+                workDayPosition = i;
+            }
+        }
+        entry->daysWorking[workDayPosition] =
+                entry->daysWorking[entry->numberOfDays - 1];
+        entry->numberOfDays -= 1;
+    }
+}

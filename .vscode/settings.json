@@ -2,5 +2,6 @@
     "files.associations": {
         "pch.h": "c"
     },
-    "C_Cpp.default.configurationProvider": "vector-of-bool.cmake-tools"
+    "C_Cpp.default.configurationProvider": "vector-of-bool.cmake-tools",
+    "catch2TestExplorer.logSentry": "disable_3"
 }

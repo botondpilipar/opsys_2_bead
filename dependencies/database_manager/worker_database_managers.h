@@ -1,4 +1,4 @@
-#ifndef WORKER_DATABASE_MANAGERS_H
+﻿#ifndef WORKER_DATABASE_MANAGERS_H
 #define WORKER_DATABASE_MANAGERS_H
 
 #include "database.h"
@@ -65,6 +65,12 @@ modifyEntry(WorkerDatabase* database,
             int modify_at,WorkerEntry* old_entry,
             WorkerEntry* new_entry);
 
+bool
+requestWorkers(WorkerDatabase* database,
+               WorkerEntry* destination,
+               unsigned int maxNumber,
+               WorkDay day,
+               bool isRegistered);
 // Logging
 
 char*

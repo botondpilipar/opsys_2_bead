@@ -1,5 +1,4 @@
-#include "input_control.h"
-
+﻿#include "input_control.h"
 
 int
 match(const char *string, char *pattern)
@@ -98,4 +97,30 @@ bool to_working_days(char* source, WorkDay* destination, int* number_of_days)
     }
 
     return valid;
+}
+
+bool
+isApellative(char* source)
+{
+    if(source == NULL)
+        return false;
+    if(strlen(source) == 0)
+        return false;
+
+    char* matcher = "^([a-z]*(\\s)?)*$";
+
+    return match(source, matcher);
+}
+
+bool
+isProperNoun(char* source)
+{
+    if(source == NULL)
+        return false;
+    if(strlen(source) == 0)
+        return false;
+
+    char* matcher = "^[A-Z][a-z]*(\\s)?([A-Z][a-z]*(\\s)?|[a-z]*(\\s)?)*$";
+
+    return match(source, matcher);
 }

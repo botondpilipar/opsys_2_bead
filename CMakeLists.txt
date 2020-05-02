@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+﻿cmake_minimum_required(VERSION 3.17)
 
 project(OperatingSystemsAssignment2 C CXX)
 
@@ -6,6 +6,9 @@ set(PCH dependencies/pch.h)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set(APPLIED_COMPILE_OPTIONS)
 
 add_subdirectory(test)
@@ -15,11 +18,14 @@ add_subdirectory(dependencies)
 
 set(PROJECT_TARGETS 
     Processes 
+    ProcessDatasets
     Main 
     DatabaseManager
-    DatabaseManagerTestExec # C++ google test target
     ConsoleIO
-    InputControlTestExec)
+    DatabaseManagerTestExec
+    InputControlTestExec
+    DailyTaskManagerTestExec
+)
 
 set(PROJECT_INCLUDE_DIRECTORIES 
     dependencies
@@ -77,9 +83,11 @@ foreach(TARGET ${PROJECT_TARGETS})
 endforeach(TARGET C_TARGETS)
 
 #Linking
+
 target_link_libraries(
     Processes
-    DatabaseManager
+    PUBLIC DatabaseManager
+    PRIVATE ProcessDatasets
 )
 
 target_link_libraries(
@@ -87,6 +95,16 @@ target_link_libraries(
     DatabaseManager
     ConsoleIO
     Processes
+)
+
+target_link_libraries(
+    ConsoleIO
+    DatabaseManager
+)
+
+target_link_libraries(
+    ProcessDatasets
+    ConsoleIO
 )
 
 target_link_libraries(
@@ -98,14 +116,20 @@ target_link_libraries(
 )
 
 target_link_libraries(
-    ConsoleIO
-    DatabaseManager
-)
-
-target_link_libraries(
     InputControlTestExec
     ConsoleIO
     ${GTEST_LIBRARIES}
     gtest_main
     pthread
+)
+
+target_link_libraries(
+    DailyTaskManagerTestExec
+    ProcessDatasets
+    ConsoleIO
+    DatabaseManager
+    ${GTEST_LIBRARIES}
+    gtest_main
+    pthread
+    stdc++fs
 )
