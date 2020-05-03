@@ -5,17 +5,23 @@
 
 void logout_worker(WorkerDatabase* database, WorkerEntry* logout)
 {
-    for(size_t i = 0; i<logout->numberOfDays; ++i)
+    if(logout->isRegistered)
     {
-        database->jobs_avaliable[logout->daysWorking[i]] += 1;
+        for(size_t i = 0; i<logout->numberOfDays; ++i)
+        {
+            database->jobs_avaliable[logout->daysWorking[i]] += 1;
+        }
     }
 }
 
 void login_worker(WorkerDatabase* database, WorkerEntry* login)
 {
-    for(size_t i = 0; i<login->numberOfDays; ++i)
+    if(login->isRegistered)
     {
-        database->jobs_avaliable[login->daysWorking[i]] -= 1;
+        for(size_t i = 0; i<login->numberOfDays; ++i)
+        {
+            database->jobs_avaliable[login->daysWorking[i]] -= 1;
+        }
     }
 }
 
@@ -41,6 +47,7 @@ WorkerDatabase initializeDb(const char* entry_location, const char* jobs_require
 {
     WorkerDatabase setup = createDb(entry_location);
     populateJobsRequired(jobs_required_location, setup.jobs_avaliable);
+    memcpy(setup.jobs_required, setup.jobs_avaliable, WORK_DAYS*sizeof(int));
     populateEntries(&setup);
     
     return setup;
@@ -87,8 +94,8 @@ int populateJobsRequired(const char* file, int* days)
 
         days[job_iterator++] = number_read;
     }
-
     fclose(jobs_required);
+
     return EXIT_SUCCESS;
 }
 int populateEntries(WorkerDatabase* db)
@@ -185,20 +192,20 @@ bool addEntry(WorkerDatabase* database, WorkerEntry* entry)
         return false;
 
     bool no_full_days = true;
-    for(size_t i = 0; i<entry->numberOfDays; ++i)
+    if(entry->isRegistered)
     {
-        if(database->jobs_avaliable[entry->daysWorking[i]] == 0)
+        for(size_t i = 0; i<entry->numberOfDays; ++i)
         {
-            no_full_days = false;
+            if(database->jobs_avaliable[entry->daysWorking[i]] == 0)
+            {
+                no_full_days = false;
+            }
         }
     }
 
     if(no_full_days)
     {
-        for(size_t i = 0; i<entry->numberOfDays; ++i)
-        {
-            --database->jobs_avaliable[entry->daysWorking[i]];
-        }
+        login_worker(database, entry);
         WorkerEntry new_entry;
         memcpy(&new_entry, entry, database->entryMemorySize);
         database->entries[database->entryNumber] = new_entry;
@@ -276,7 +283,7 @@ bool modifyEntry(WorkerDatabase* database, int modify_at, WorkerEntry* old_entry
     return true;
 }
 
-bool
+unsigned int
 requestWorkers(WorkerDatabase* database,
                WorkerEntry* destination,
                unsigned int maxNumber,
@@ -284,36 +291,27 @@ requestWorkers(WorkerDatabase* database,
                bool isRegistered)
 {
     int destinationIndexer = 0;
-    if(isRegistered)
+    for(unsigned i = 0;
+        i < database->entryNumber
+            && destinationIndexer < maxNumber; ++i)
     {
-        for(unsigned i = 0;
-            i < database->entryNumber
-                && destinationIndexer < maxNumber; ++i)
+        if(database->entries[i].isRegistered == isRegistered
+                && canWorkOnDay(&database->entries[i], day))
         {
-            if(database->entries[i].isRegistered == isRegistered
-                    && canWorkOnDay(&database->entries[i], day))
-            {
-                WorkerEntry workEntry = database->entries[i];
-                sendToWork(&workEntry, day);
-                bool inDatabase = true;
-                int index = indexLookup(database,
-                                        workEntry.name,
-                                        workEntry.address,
-                                        &inDatabase);
+            WorkerEntry workEntry = database->entries[i];
+            sendToWork(&workEntry, day);
+            bool inDatabase = true;
+            if(workEntry.numberOfDays == 0)
+                removeEntry(database, i);
+            else
+                modifyEntry(database,
+                            index,
+                            &database->entries[i],
+                            &workEntry);
 
-                if(workEntry.numberOfDays == 0)
-                    removeEntry(database, index);
-                else
-                    modifyEntry(database,
-                                index,
-                                &database->entries[i],
-                                &workEntry);
-
-                destination[destinationIndexer] = database->entries[i];
-                destinationIndexer += 1;
-            }
+            destination[destinationIndexer] = database->entries[i];
+            destinationIndexer += 1;
         }
     }
-
-    return destinationIndexer == maxNumber;
+    return destinationIndexer;
 }

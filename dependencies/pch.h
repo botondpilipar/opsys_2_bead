@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <sys/types.h>
+#include <sys/signal.h>
 #include <unistd.h>
 #include <signal.h>
 #include <memory.h>

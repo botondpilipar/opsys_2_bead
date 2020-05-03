@@ -1,7 +1,7 @@
 #include "database_manager_test.hh"
 extern "C"
 {
-    #include "../console_interface/input_control.h"
+    #include <input_control.h>
 }
 
 TEST(InputControl, NameValidation)
@@ -60,6 +60,26 @@ TEST(InputControl, WorkingDayParsing)
 
     EXPECT_FALSE(to_working_days(only_ascii, days, &number_of_days));
     EXPECT_FALSE(to_working_days(wrong_input, days, &number_of_days));
+}
+
+TEST(InputControl, PositiveNegative)
+{
+    EXPECT_TRUE(isAffermative("i"));
+    EXPECT_TRUE(isAffermative("I"));
+    EXPECT_TRUE(isAffermative("igen"));
+    EXPECT_TRUE(isAffermative("Igen"));
+    EXPECT_TRUE(isAffermative("y"));
+    EXPECT_TRUE(isAffermative("Y"));
+    EXPECT_TRUE(isAffermative("yes"));
+    EXPECT_TRUE(isAffermative("Yes"));
+    EXPECT_FALSE(isAffermative("nem"));
+
+    EXPECT_TRUE(isNegative("n"));
+    EXPECT_TRUE(isNegative("N"));
+    EXPECT_TRUE(isNegative("nem"));
+    EXPECT_TRUE(isNegative("Nem"));
+    EXPECT_TRUE(isNegative("no"));
+    EXPECT_TRUE(isNegative("No"));
 }
 int main(int argc, char** argv)
 {

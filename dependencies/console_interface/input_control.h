@@ -18,6 +18,9 @@ bool
 is_address(const char* source);
 
 bool
+is_working_day(const char* source);
+
+bool
 to_working_days(char* source, WorkDay* destination, int* number_of_days);
 
 bool
@@ -25,3 +28,9 @@ isApellative(char* source);
 
 bool
 isProperNoun(char* source);
+
+bool
+isAffermative(const char* source);
+
+bool
+isNegative(const char* source);

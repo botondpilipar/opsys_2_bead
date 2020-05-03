@@ -1,5 +1,7 @@
 ﻿#include "input_control.h"
 
+#define POS_NEG_WORD_MAX_LENGTH 7
+
 int
 match(const char *string, char *pattern)
 {
@@ -17,6 +19,7 @@ match(const char *string, char *pattern)
     }
     return(1);
 }
+
 
 bool is_name(const char* source)
 {
@@ -43,17 +46,18 @@ bool is_address(const char* source)
     return result;
 }
 
-bool is_working_day(char* source)
+bool is_working_day(const char* source)
 {
     char days [WEEK_LENGTH][MAX_DAY_STR_LENGTH+2] =
         {"^hétfő$", "^kedd$", "^szerda$", "^csütörtök$", "^péntek$", "^szombat$", "^vasárnap$"};
 
-    bool any_matches = false;
-    for(int i = 0; i<WORK_DAYS && !any_matches; ++i)
+    bool matches = false;
+    for(size_t i = 0; i<WEEK_LENGTH && !matches; ++i)
     {
-        any_matches = any_matches || match(source, days[i]);
+        matches = matches || match(source, days[i]) == 1;
     }
-    return any_matches;
+
+    return matches;
 }
 
 bool to_working_days(char* source, WorkDay* destination, int* number_of_days)
@@ -123,4 +127,40 @@ isProperNoun(char* source)
     char* matcher = "^[A-Z][a-z]*(\\s)?([A-Z][a-z]*(\\s)?|[a-z]*(\\s)?)*$";
 
     return match(source, matcher);
+}
+
+bool
+isAffermative(const char* source)
+{
+    if(source == NULL)
+        return false;
+    if(strlen(source) == 0)
+        return false;
+    char affermative [8][POS_NEG_WORD_MAX_LENGTH]
+            = {"I", "i", "Igen", "igen", "y", "Y", "yes", "Yes"};
+
+    bool matches = false;
+    for(size_t i = 0; i<8 && !matches; ++i)
+    {
+        matches = matches || strcmp(source, affermative[i]) == 0;
+    }
+    return matches;
+}
+
+bool
+isNegative(const char* source)
+{
+    if(source == NULL)
+        return false;
+    if(strlen(source) == 0)
+        return false;
+
+    char negative [6][POS_NEG_WORD_MAX_LENGTH] = {"n", "N", "Nem", "nem", "No", "no"};
+
+    bool matches = false;
+    for(size_t i = 0; i<6 && !matches; ++i)
+    {
+        matches = matches || strcmp(source, negative[i]) == 0;
+    }
+    return matches;
 }

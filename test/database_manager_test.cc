@@ -1,21 +1,5 @@
 ﻿#include "database_manager_test.hh"
-
-class WorkerEntryTest : public ::testing::Test
-{
-protected:
-//    virtual void SetUp();
-//    virtual void TearDown();
-
-    const char* entryName1 = "Peter";
-    const char* entryName2 = "Paul";
-    const char* entryAddress1 = "Work Street 2.";
-    const char* entryAddress2 = "Home Street 12.";
-    const WorkDay entryWorkDays1[WORK_DAYS] = {MON, TUE, WED, THU, FRI, SAT, SUN};
-    const WorkDay entryWorkDays2[WORK_DAYS] = {MON, WED, TUE, FRI, THU};
-
-    const WorkDay invalidDays1[WORK_DAYS] = {MON, MON, TUE, TUE, FRI, FRI, SAT};
-    const WorkDay invalidDays2[WORK_DAYS] = {};
-};
+#include "TestFixtures.hh"
 
 TEST_F(WorkerEntryTest, EntryCreationAndValidation)
 {
@@ -275,6 +259,48 @@ TEST(DatabaseManipulation, RemoveAnyEntry)
 
     cleanupDb(&db_new);
     free(db_copy.entries);
+}
+
+TEST_F(DatabaseManagerTest, RequestWorkers)
+{
+    WorkerEntry registered1
+        = createEntry(entryName1, entryAddress1, entryWorkdays1, 4, true);
+    WorkerEntry registered2
+        = createEntry(entryName2, entryAddress2, entryWorkdays2, 3, true);
+    WorkerEntry registered3
+        = createEntry(entryName3, entryAddress3, entryWorkdays3, 1, true);
+    WorkerEntry unregistered1
+        = createEntry(entryName4, entryAddress4, entryWorkdays2, 0, false);
+    WorkerEntry unregistered2
+        = createEntry(entryName5, entryAddress5, entryWorkdays2, 0, false);
+    WorkerEntry unregistered3
+        = createEntry(entryName6, entryAddress6, entryWorkdays2, 0, false);
+    
+    WorkerEntry registeredEntries1 [3];
+    WorkerEntry registeredEntries2 [3];
+    WorkerEntry unregisteredEntries [3];
+
+    FILE* file = fopen(FIXTURE_TEST_ENTRY, "w+");
+    fclose(file);
+
+    WorkerDatabase database = initializeDb(FIXTURE_TEST_ENTRY, TEST_RESOURCE1);
+    
+    addEntry(&database, &registered1);
+    addEntry(&database, &registered2);
+    addEntry(&database, &registered3);
+    addEntry(&database, &unregistered1);
+    addEntry(&database, &unregistered2);
+    addEntry(&database, &unregistered3);
+
+    ASSERT_EQ(database.entryNumber, 6);
+
+    unsigned int requestedForTuesday = 
+        requestWorkers(&database, registeredEntries1, 3, TUE, true);
+    unsigned int requestedForSunday = 
+    requestWorkers(&database, registeredEntries2, 3, SUN, true);\
+
+    EXPECT_EQ(requestedForTuesday, 2);
+    EXPECT_EQ(requestedForSunday, 1);
 }
 int main(int argc, char** argv)
 {

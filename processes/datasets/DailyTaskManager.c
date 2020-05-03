@@ -54,7 +54,7 @@ DailyTaskManager
 createDailyTaskManager(const char* location)
 {
     DailyTaskManager manager;
-        manager.diskStorage = fopen(location, "r");
+        manager.diskStorage = fopen(location, "r+");
         manager.tasks = (DailyTask*)malloc(DEFAULT_TASK_SIZE * sizeof(DailyTask));
         manager.taskNumber = 0;
         manager.taskCapacity = DEFAULT_TASK_SIZE;
@@ -100,6 +100,7 @@ recordDailyTasks(DailyTaskManager* manager, const char* location)
     if(manager == NULL || location == NULL)
         return false;
 
+    fclose(manager->diskStorage);
     FILE* disk = fopen(location, "w+");
     char* vineyard = manager->tasks[0].vineyard;
 

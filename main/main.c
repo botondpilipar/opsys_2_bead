@@ -6,7 +6,7 @@ int main()
 {
     WorkerDatabase db = initializeDb("resources/entries.bin","resources/employed_per_day.txt");
 
-    main_dialog(&db);
+    mainDialog(&db);
 
     return 0;
 }

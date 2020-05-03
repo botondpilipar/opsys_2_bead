@@ -9,13 +9,18 @@
 #define MAX_WORKER_PER_DAY INIT_DATABASE_LENGTH
 
 bool
-isSubProcess();
+isChildProcess(pid_t forkPid);
 
-void
-vineyardOwnerProcess(const char* taskFileLocation, int pipe[]);
+int
+vineyardOwnerProcess(const char* taskFileLocation, int pipe[], pid_t forkPid);
 
-void
-taskMasterProcess(WorkerDatabase database,
+int
+taskMasterProcess(WorkerDatabase* database,
                   WorkDay day,
                   int workerListPipe[],
                   int dailyTaskPipe[]);
+
+int
+officeProcess(WorkerDatabase* database,
+              const char* dailtyTaskFileLocation,
+              WorkDay day);

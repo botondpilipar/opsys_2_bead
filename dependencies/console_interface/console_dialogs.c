@@ -1,7 +1,12 @@
-#include "console_dialogs.h"
+﻿#include "console_dialogs.h"
 #include "input_handlers.h"
 #include <worker_database_managers.h>
+#include <day_enum_conversion.h>
 #include <worker_entry.h>
+#include <Processes.h>
+
+#define WORKER_ENTRY_BINARY_FILE "resources/entries.bin"
+#define DAILY_TASK_TEXT_FILE "resources/vineyard_tasks.txt"
 
 void display_main_menu(void)
 {
@@ -9,7 +14,8 @@ void display_main_menu(void)
     printf("[2] Megléve adatok törlése\n");
     printf("[3] Adatok módosítása\n");
     printf("[4] Elérhető munkák naponta\n");
-    printf("[5] Kilépés\n");
+    printf("[5] Nap indítása\n");
+    printf("[6] Kilépés\n");
     printf("Menüpont: >> ");
 }
 
@@ -23,7 +29,7 @@ void print_avaliable_jobs(WorkerDatabase* db)
     }
 }
 
-void main_dialog(WorkerDatabase* db)
+void mainDialog(WorkerDatabase* db)
 {
     char input_buffer[BUFFER_SIZE];
     int menu_option = 0;
@@ -49,7 +55,7 @@ void main_dialog(WorkerDatabase* db)
             case NEW_ENTRY_DIALOG_OPTION:
             {
                 bool new_entry_success = false;
-                WorkerEntry entry = new_entry_dialog(db, &new_entry_success);
+                WorkerEntry entry = newEntryDialog(db, &new_entry_success);
                 if(new_entry_success)
                 {
                     bool added = addEntry(db, &entry);
@@ -63,7 +69,7 @@ void main_dialog(WorkerDatabase* db)
                 break;
             case REMOVE_ENTRY_DIALOG_OPTION:
             {   
-                int remove_at = removeEntry_dialog(db);
+                int remove_at = removeEntryDialog(db);
                 if(remove_at < 0)
                     printf("Sikertelen művelet!\n");
                 else
@@ -83,7 +89,7 @@ void main_dialog(WorkerDatabase* db)
                 char address [ADDRESS_MAX_LENGTH];
                 WorkDay days [WORK_DAYS];
                 WorkerEntry start_entry = createEntry(name, address, days, 0, true);
-                int modify_at = modification_entry_dialog(db, &start_entry);
+                int modify_at = modificationEntryDialog(db, &start_entry);
                 
                 if(modify_at >= 0)
                 {
@@ -102,6 +108,11 @@ void main_dialog(WorkerDatabase* db)
                 print_avaliable_jobs(db);
             }
                 break;
+            case START_DAY_DIALOG_OPTION:
+            {
+                startDayDialog(db, DAILY_TASK_TEXT_FILE);
+            }
+                break;
             case EXIT_DIALOG_OPTION:
                 break;
             default:
@@ -112,18 +123,24 @@ void main_dialog(WorkerDatabase* db)
 }
     
 
-WorkerEntry new_entry_dialog(WorkerDatabase* db, bool* successfull)
+WorkerEntry newEntryDialog(WorkerDatabase* db, bool* successfull)
 {
     char name [NAME_MAX_LENGTH];
     char address [ADDRESS_MAX_LENGTH];
     WorkDay daysWorking[WORK_DAYS];
     int numberOfDays = 0;
+    bool isRegistered = false;
 
     bool name_success = handle_name(name);
     bool address_success = handle_address(address);
-    bool daysWorking_success = handle_daysWorking(daysWorking, &numberOfDays);
+    bool registeredSuccess = handle_registered(&isRegistered);
+    bool daysWorkingSuccess = true;
 
-    *successfull = name_success && address_success && daysWorking_success;
+    if(isRegistered)
+    {
+        daysWorkingSuccess = handle_daysWorking(daysWorking, &numberOfDays);
+    }
+    *successfull = name_success && address_success && registeredSuccess && daysWorkingSuccess;
     if(*successfull)
     {
         bool already_in_db = false;
@@ -131,13 +148,13 @@ WorkerEntry new_entry_dialog(WorkerDatabase* db, bool* successfull)
         if(already_in_db)
             printf("A bejegyzés már az adatbázisban van.\n");
         else
-            return createEntry(name, address, daysWorking, numberOfDays, true);
+            return createEntry(name, address, daysWorking, numberOfDays, isRegistered);
     }
 
-    return createEntry("", "", NULL, 0, true);
+    return createEntry("", "", NULL, 0, false);
 }
 
-int removeEntry_dialog(WorkerDatabase* db)
+int removeEntryDialog(WorkerDatabase* db)
 {
     char name [NAME_MAX_LENGTH];
     char address [ADDRESS_MAX_LENGTH];
@@ -155,7 +172,7 @@ int removeEntry_dialog(WorkerDatabase* db)
     return -1;
 }
 
-int modification_entry_dialog(WorkerDatabase* db, WorkerEntry* target)
+int modificationEntryDialog(WorkerDatabase* db, WorkerEntry* target)
 {
     char old_name [NAME_MAX_LENGTH];
     char old_address [ADDRESS_MAX_LENGTH];
@@ -178,17 +195,26 @@ int modification_entry_dialog(WorkerDatabase* db, WorkerEntry* target)
             printf("Szerepel az adatbázisban\n");
             printf("Kérem adja meg új adatait:\n");
 
+            bool isRegistered = false;
+
             bool new_name_success = handle_name(new_name);
             bool new_address_success = handle_address(new_address);
-            bool new_working_days_success = 
-                handle_daysWorking(new_daysWorking, &new_numberOfDays);
+            bool newIsRegisteredSuccess = handle_registered(&isRegistered);
+            bool new_working_days_success = true;
+
+            if(new_name_success && new_address_success && newIsRegisteredSuccess && isRegistered)
+            {
+                new_working_days_success = handle_daysWorking(new_daysWorking, &new_numberOfDays);
+            }
             
             if(new_name_success 
                 && new_address_success 
-                && new_working_days_success)
+                && new_working_days_success
+                && newIsRegisteredSuccess)
             {
                 strcpy(target->address, new_address);
                 strcpy(target->name, new_name);
+                target->isRegistered = isRegistered;
                 target->numberOfDays = new_numberOfDays;
                 memcpy(target->daysWorking, new_daysWorking, WORK_DAYS*sizeof(WorkDay));
 
@@ -198,4 +224,28 @@ int modification_entry_dialog(WorkerDatabase* db, WorkerEntry* target)
     }
 
     return -1;
+}
+
+void
+startDayDialog(WorkerDatabase* database,
+               const char* dailyTaskTextFile)
+{
+    char dayString [MAX_DAY_STR_LENGTH];
+    char buffer [BUFFER_SIZE];
+
+    printf("Munkanap: ");
+    fgets(buffer, BUFFER_SIZE, stdin);
+    sscanf(buffer, "%s", dayString);
+
+    while(!is_working_day(dayString))
+    {
+        puts("Helytelen munkanap formátum"
+             "Próbálja a következőket: hétfő kedd szerda csütörtök péntek szombat vasárnap");
+        fgets(buffer, BUFFER_SIZE, stdin);
+        sscanf(buffer, "%s", dayString);
+    }
+
+    WorkDay day = to_workday(dayString);
+    officeProcess(database, dailyTaskTextFile, day);
+    sleep(3);
 }

@@ -22,6 +22,11 @@ add_executable(
     input_control_test.cc
 )
 
+add_executable(
+    ProcessesTestExec
+    TestProcesses.cc
+)
+
 add_custom_command(
     TARGET DatabaseManagerTestExec
     COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -31,6 +36,13 @@ add_custom_command(
 
 add_custom_command(
     TARGET DailyTaskManagerTestExec
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/resources
+    ${CMAKE_CURRENT_BINARY_DIR}/resources
+)
+
+add_custom_command(
+    TARGET ProcessesTestExec
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_SOURCE_DIR}/resources
     ${CMAKE_CURRENT_BINARY_DIR}/resources

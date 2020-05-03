@@ -65,7 +65,7 @@ modifyEntry(WorkerDatabase* database,
             int modify_at,WorkerEntry* old_entry,
             WorkerEntry* new_entry);
 
-bool
+unsigned int
 requestWorkers(WorkerDatabase* database,
                WorkerEntry* destination,
                unsigned int maxNumber,

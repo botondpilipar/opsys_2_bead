@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.17)
 
 project(OperatingSystemsAssignment2 C CXX)
 
@@ -16,14 +16,14 @@ add_subdirectory(processes)
 add_subdirectory(main)
 add_subdirectory(dependencies)
 
-set(LIBRARY_TARGETS
+list(APPEND LIBRARY_TARGETS
     Processes 
+    ConsoleIO
     ProcessDatasets
     DatabaseManager
-    ConsoleIO
 )
 
-set(EXECUTABLE_TARGETS
+list(APPEND EXECUTABLE_TARGETS
     Main
     DatabaseManagerTestExec
     InputControlTestExec
@@ -31,17 +31,18 @@ set(EXECUTABLE_TARGETS
     ProcessesTestExec
 )
 
-set(PROJECT_TARGETS 
-    Processes 
-    ProcessDatasets
-    Main 
-    DatabaseManager
-    ConsoleIO
-    DatabaseManagerTestExec
-    InputControlTestExec
-    DailyTaskManagerTestExec
-    ProcessesTestExec
-)
+list(APPEND PROJECT_TARGETS ${LIBRARY_TARGETS} ${EXECUTABLE_TARGETS})
+# set(PROJECT_TARGETS 
+#     Processes 
+#     ProcessDatasets
+#     Main 
+#     DatabaseManager
+#     ConsoleIO
+#     DatabaseManagerTestExec
+#     InputControlTestExec
+#     DailyTaskManagerTestExec
+#     ProcessesTestExec
+# )
 
 set(PROJECT_INCLUDE_DIRECTORIES 
     dependencies
@@ -101,61 +102,73 @@ endforeach(TARGET C_TARGETS)
 
 #Linking
 
-target_link_libraries(
-    Processes
-    PUBLIC DatabaseManager
-    PRIVATE ProcessDatasets
-)
+# target_link_libraries(
+#     Processes
+#     PUBLIC DatabaseManager
+#     PRIVATE ProcessDatasets
+# )
 
-target_link_libraries(
-    Main
-    DatabaseManager
-    ConsoleIO
-    Processes
-)
+# target_link_libraries(
+#     Main
+#     DatabaseManager
+#     ConsoleIO
+#     Processes
+# )
 
-target_link_libraries(
-    ConsoleIO
-    DatabaseManager
-)
+# target_link_libraries(
+#     ConsoleIO
+#     DatabaseManager
+# )
 
-target_link_libraries(
-    ProcessDatasets
-    ConsoleIO
-)
+# target_link_libraries(
+#     ProcessDatasets
+#     ConsoleIO
+# )
 
-target_link_libraries(
-    DatabaseManagerTestExec
-    DatabaseManager
-    ${GTEST_LIBRARIES}
-    gtest_main
-    pthread
-)
+foreach (LIBRARY IN LISTS ${LIBRARY_TARGETS})
+    set(LIB_EXCLUDED ${LIBRARY_TARGETS})
+    list(REMOVE_ITEM  LIB_EXCLUDED ${LIBRARY})
+    target_link_libraries(
+        ${LIBRARY}
+        ${LIB_EXCLUDED}
+    )
+endforeach()
 
-target_link_libraries(
-    InputControlTestExec
-    ConsoleIO
-    ${GTEST_LIBRARIES}
-    gtest_main
-    pthread
-)
+foreach (EXECUTABLE IN LISTS ${EXECUTABLE_TARGETS})
+    target_link_libraries(
+        ${TEST_TARGET}
+        ${LIBRARY_TARGETS}
+        ${GTEST_LIBRARIES}
+        gtest_main
+        pthread
+        stdc++fs
+    )
+endforeach()
 
-target_link_libraries(
-    DailyTaskManagerTestExec
-    ProcessDatasets
-    ConsoleIO
-    DatabaseManager
-    ${GTEST_LIBRARIES}
-    gtest_main
-    pthread
-    stdc++fs
-)
 
-target_link_libraries(
-    ProcessesTestExec
-    Processes
-    ProcessDatasets
-    ${GTEST_LIBRARIES}
-    gtest_main
-    pthread
-)
+# target_link_libraries(
+#     DatabaseManagerTestExec
+#     DatabaseManager
+#     ${GTEST_LIBRARIES}
+#     gtest_main
+#     pthread
+# )
+
+# target_link_libraries(
+#     InputControlTestExec
+#     ConsoleIO
+#     ${GTEST_LIBRARIES}
+#     gtest_main
+#     pthread
+# )
+
+# target_link_libraries(
+#     DailyTaskManagerTestExec
+#     ProcessDatasets
+#     ConsoleIO
+#     DatabaseManager
+#     ${GTEST_LIBRARIES}
+#     gtest_main
+#     pthread
+#     stdc++fs
+# )

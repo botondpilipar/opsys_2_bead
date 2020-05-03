@@ -8,6 +8,7 @@ typedef struct WorkerDatabase
 {
     WorkerEntry* entries;
     int jobs_avaliable[WORK_DAYS];
+    int jobs_required[WORK_DAYS];
     size_t entryNumber;
     size_t entryCapacity;
     const size_t entryMemorySize;

@@ -1,7 +1,13 @@
-#include "../database_manager/database.h"
+﻿#include <database.h>
 
-bool handle_name(char* dest);
+bool
+handle_registered(bool* isRegistered);
 
-bool handle_address(char* dest);
+bool
+handle_name(char* dest);
 
-bool handle_daysWorking(WorkDay* dest, int* number_of_days);
+bool
+handle_address(char* dest);
+
+bool
+handle_daysWorking(WorkDay* dest, int* number_of_days);
