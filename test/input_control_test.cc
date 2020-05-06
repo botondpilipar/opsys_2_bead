@@ -80,6 +80,7 @@ TEST(InputControl, PositiveNegative)
     EXPECT_TRUE(isNegative("Nem"));
     EXPECT_TRUE(isNegative("no"));
     EXPECT_TRUE(isNegative("No"));
+    EXPECT_FALSE(isNegative("igen"));
 }
 int main(int argc, char** argv)
 {

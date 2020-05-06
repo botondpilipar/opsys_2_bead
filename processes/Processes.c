@@ -62,7 +62,7 @@ taskMasterProcess(WorkerDatabase* database,
     }
 
     unsigned int workersReceived = workerByte / sizeof (WorkerEntry);
-    unsigned int workersRequired = database->jobs_avaliable[day] - workersReceived;
+    unsigned int workersRequired = database->jobs_required[day] - workersReceived;
 
     printf("A munkásjárat a napi feladatot megkapta: \n %s %s \n", task.task, task.vineyard);
     printf("A munkahoz %d munkás jelentkezett\n", workersReceived);
@@ -78,10 +78,10 @@ taskMasterProcess(WorkerDatabase* database,
         unsigned int received =
                 requestWorkers(database, unregisteredWorkers, workersRequired, day, false);
 
-        puts("Aznapi jelentkezők névsora: \n");
+        puts("Aznapi jelentkezők névsora: ");
         for(unsigned i = 0; i<received; ++i)
         {
-            puts(workerList[i].name);
+            puts(unregisteredWorkers[i].name);
         }
         puts("-----------------------------------------------------------------");
 
@@ -139,9 +139,21 @@ officeProcess(WorkerDatabase* database,
         DailyTask selectedTask;
         read(dailyTaskInputPipe[0], &selectedTask, sizeof(DailyTask));
 
-        pid_t vineyardOwnerPid = fork();
+        
 
-        if(isChildProcess(vineyardOwnerPid))
+        unsigned int registeredWorkersRequired = database->jobs_required[day];
+        WorkerEntry registeredWorkers[registeredWorkersRequired];
+        unsigned int workersReceived =
+            requestWorkers(database, registeredWorkers, registeredWorkersRequired, day, true);
+
+        if(workersReceived == 0)
+        {
+            perror("Legalább egy munkásnak regisztrálnia kell");
+            return EXIT_FAILURE;
+        }
+
+        pid_t vineyardOwnerPid = fork();
+        if(vineyardOwnerPid == 0)
         {
             taskMasterProcess(database, day, workerListOutputPipe, dailyTaskOutputPipe);
             exit(0);
@@ -151,20 +163,12 @@ officeProcess(WorkerDatabase* database,
             close(dailyTaskOutputPipe[0]);
 
             // TODO jobs_available is the complete opposite of what I need. I need the one required`
-            unsigned int registeredWorkersRequired = database->jobs_required[day];
-            WorkerEntry registeredWorkers[registeredWorkersRequired];
-
-            unsigned int workersReceived =
-                    requestWorkers(database, registeredWorkers, registeredWorkersRequired, day, true);
-
             write(workerListOutputPipe[1], registeredWorkers, workersReceived*sizeof(WorkerEntry));
             write(dailyTaskOutputPipe[1], &selectedTask, sizeof (DailyTask));
 
             pause();
             puts("Nap vége");
+            return EXIT_SUCCESS;
         }
-        
     }
-
-    
 }

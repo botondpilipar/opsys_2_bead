@@ -104,6 +104,7 @@ recordDailyTasks(DailyTaskManager* manager, const char* location)
     FILE* disk = fopen(location, "w+");
     char* vineyard = manager->tasks[0].vineyard;
 
+    fprintf(disk, "%s\n", vineyard);
     for(unsigned i = 0; i<manager->taskNumber; ++i)
     {
         if(strcmp(manager->tasks[i].vineyard, vineyard) == 0)

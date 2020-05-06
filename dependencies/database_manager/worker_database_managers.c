@@ -120,19 +120,20 @@ int populateEntries(WorkerDatabase* db)
         }
     }
 
-    successfully_read = db->entryNumber;
-
-    for(size_t i = 0; i<successfully_read; ++i)
+    for(size_t i = 0; i<db->entryNumber; ++i)
     {
-        if(isValidEntry(&db->entries[i]))
+        bool validEntry = isValidEntry(&db->entries[i]);
+        bool isRegisteredEntry = db->entries[i].isRegistered;
+
+        if(isValidEntry && isRegisteredEntry)
         {
-            for(size_t j = 0; j<db->entries[i].numberOfDays; ++j)
-            {
-                --db->jobs_avaliable[db->entries[i].daysWorking[j]];
-            }
+            login_worker(db, &db->entries[i]);
         }
-        else
+        else if(!validEntry)
+        {
             --db->entryNumber;
+        }
+
     }
     return EXIT_SUCCESS;
 }
@@ -271,6 +272,11 @@ bool modifyEntry(WorkerDatabase* database, int modify_at, WorkerEntry* old_entry
     if(modify_at < 0 || modify_at >= database->entryNumber)
         return false;
 
+    if(new_entry->isRegistered && new_entry->numberOfDays == 0)
+    {
+        return removeEntry(database, modify_at);
+    }
+
     logout_worker(database, old_entry);
     login_worker(database, new_entry);
 
@@ -296,21 +302,21 @@ requestWorkers(WorkerDatabase* database,
             && destinationIndexer < maxNumber; ++i)
     {
         if(database->entries[i].isRegistered == isRegistered
-                && canWorkOnDay(&database->entries[i], day))
+            && canWorkOnDay(&database->entries[i], day))
         {
             WorkerEntry workEntry = database->entries[i];
-            sendToWork(&workEntry, day);
-            bool inDatabase = true;
-            if(workEntry.numberOfDays == 0)
+            if(database->entries[i].isRegistered == false)
+            {
                 removeEntry(database, i);
+            }
             else
-                modifyEntry(database,
-                            index,
-                            &database->entries[i],
-                            &workEntry);
-
-            destination[destinationIndexer] = database->entries[i];
+            {
+                sendToWork(&workEntry, day);
+                modifyEntry(database, i, &database->entries[i], &workEntry);
+            }
+            destination[destinationIndexer] = workEntry;
             destinationIndexer += 1;
+            i = 0;
         }
     }
     return destinationIndexer;
